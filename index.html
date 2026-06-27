@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>金工速通 · 4小时过考试</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafaf7;
+    --ink: #14171e;
+    --ink-2: #3a4256;
+    --muted: #7c7a72;
+    --line: #e8e3d6;
+    --line-soft: #efeae0;
+    --card: #ffffff;
+    --accent: #f59e0b;     /* 火星橙 */
+    --accent-2: #ea580c;   /* 深橙 */
+    --good: #10b981;
+    --good-soft: #d1fae5;
+    --bad: #dc2626;
+    --bad-soft: #fee2e2;
+    --warn: #f59e0b;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: 'Outfit', 'Noto Sans SC', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  .num { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+
+  /* 背景：火星余烬的极淡渐变 */
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(800px 400px at 0% 0%, rgba(245, 158, 11, 0.06), transparent 60%),
+      radial-gradient(700px 500px at 100% 100%, rgba(220, 38, 38, 0.04), transparent 60%);
+  }
+
+  .app { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  /* === Header === */
+  .top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 32px; gap: 16px; flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .logo {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: grid; place-items: center; color: white;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
+  }
+  .brand h1 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+  .brand p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+
+  .tabs { display: flex; gap: 4px; background: white; padding: 4px; border-radius: 12px; border: 1px solid var(--line); }
+  .tab {
+    padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    cursor: pointer; color: var(--ink-2); transition: all 0.15s; border: none; background: transparent;
+    font-family: inherit;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active { background: var(--ink); color: white; }
+
+  .badges { display: flex; gap: 8px; align-items: center; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; background: white; border: 1px solid var(--line);
+  }
+  .badge.bad { background: var(--bad-soft); color: var(--bad); border-color: transparent; }
+  .badge.good { background: var(--good-soft); color: var(--good); border-color: transparent; }
+
+  /* === Progress === */
+  .progress-wrap { margin-bottom: 24px; }
+  .progress-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .progress-track { height: 6px; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius: 999px; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+  /* === Question Card === */
+  .q-card {
+    background: var(--card); border-radius: 20px;
+    border: 1px solid var(--line);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    padding: 36px 32px; min-height: 480px; display: flex; flex-direction: column;
+  }
+  .q-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .q-num { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .q-num b { color: var(--ink); font-size: 22px; font-weight: 800; margin-left: 4px; }
+  .q-cat { font-size: 12px; font-weight: 600; color: var(--accent-2); background: rgba(245, 158, 11, 0.1); padding: 4px 10px; border-radius: 6px; }
+
+  .q-text {
+    font-size: 22px; line-height: 1.5; font-weight: 600;
+    color: var(--ink); margin: 8px 0 32px;
+    letter-spacing: -0.005em;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 12px; }
+  .opt {
+    display: flex; align-items: center; gap: 14px;
+    padding: 18px 20px; border-radius: 12px;
+    border: 1.5px solid var(--line); background: white; cursor: pointer;
+    font-size: 16px; line-height: 1.5; color: var(--ink);
+    transition: all 0.15s; text-align: left;
+    font-family: inherit; width: 100%;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+  .opt .key {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: grid; place-items: center; font-weight: 700; font-size: 13px;
+    background: var(--line-soft); color: var(--ink-2);
+    flex-shrink: 0;
+  }
+  .opt .txt { flex: 1; }
+  .opt.selected { border-color: var(--accent); background: rgba(245, 158, 11, 0.04); }
+  .opt.selected .key { background: var(--accent); color: white; }
+  .opt.correct { border-color: var(--good); background: var(--good-soft); }
+  .opt.correct .key { background: var(--good); color: white; }
+  .opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  .opt.wrong .key { background: var(--bad); color: white; }
+  .opt:disabled { cursor: default; }
+  .opt .mark { margin-left: auto; flex-shrink: 0; }
+  .opt.correct .mark, .opt.wrong .mark { display: block; }
+  .opt .mark { display: none; }
+
+  /* === Action bar === */
+  .actions {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 28px; gap: 12px; flex-wrap: wrap;
+  }
+  .btn {
+    padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; border: 1.5px solid transparent;
+    font-family: inherit; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn.primary { background: var(--ink); color: white; }
+  .btn.primary:hover:not(:disabled) { background: #000; }
+  .btn.ghost { background: white; color: var(--ink-2); border-color: var(--line); }
+  .btn.ghost:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); }
+  .btn.accent { background: var(--accent); color: white; }
+  .btn.accent:hover:not(:disabled) { background: var(--accent-2); }
+
+  .hint { font-size: 12px; color: var(--muted); text-align: center; margin-top: 14px; }
+  .hint kbd { display: inline-block; padding: 2px 6px; background: white; border: 1px solid var(--line); border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+  /* === Explain panel (after submit) === */
+  .explain {
+    margin-top: 20px; padding: 18px 20px; border-radius: 12px;
+    background: #fffbeb; border: 1px solid #fde68a;
+    font-size: 14px; line-height: 1.65; color: var(--ink-2);
+    display: none;
+  }
+  .explain.show { display: block; animation: slideUp 0.3s ease; }
+  .explain h4 { margin: 0 0 6px; font-size: 13px; color: var(--accent-2); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  .explain.shake { animation: shake 0.4s; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+  /* === Start screen === */
+  .hero {
+    background: var(--card); border-radius: 24px; padding: 56px 40px;
+    border: 1px solid var(--line);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    text-align: center;
+  }
+  .hero h2 { margin: 16px 0 8px; font-size: 36px; font-weight: 800; letter-spacing: -0.02em; }
+  .hero p { margin: 0 0 32px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+  .modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 680px) { .modes { grid-template-columns: 1fr; } .hero h2 { font-size: 28px; } }
+  .mode {
+    padding: 24px 18px; border-radius: 14px; border: 1.5px solid var(--line);
+    cursor: pointer; text-align: left; background: white;
+    transition: all 0.15s; font-family: inherit;
+  }
+  .mode:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+  .mode .icon {
+    width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center;
+    background: rgba(245, 158, 11, 0.1); color: var(--accent-2); margin-bottom: 12px;
+  }
+  .mode h3 { margin: 0 0 4px; font-size: 16px; font-weight: 700; }
+  .mode p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .mode .meta { font-size: 11px; color: var(--accent-2); font-weight: 700; margin-top: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* === Result screen === */
+  .result { text-align: center; padding: 20px; }
+  .score-circle {
+    width: 160px; height: 160px; border-radius: 50%;
+    margin: 16px auto 24px; display: grid; place-items: center;
+    position: relative;
+    background: conic-gradient(var(--good) 0deg, var(--line-soft) 0deg);
+    transition: background 1s;
+  }
+  .score-inner {
+    width: 130px; height: 130px; border-radius: 50%;
+    background: white; display: grid; place-items: center;
+  }
+  .score-text { font-size: 36px; font-weight: 800; letter-spacing: -0.02em; }
+  .score-text small { font-size: 16px; color: var(--muted); font-weight: 500; }
+  .result h2 { margin: 0 0 8px; font-size: 28px; font-weight: 800; }
+  .result p.tag { color: var(--muted); font-size: 14px; margin: 0 0 32px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 32px; }
+  .stat { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 16px 12px; }
+  .stat .v { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+  .stat .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+  .stat.good .v { color: var(--good); }
+  .stat.bad .v { color: var(--bad); }
+
+  /* === Trap list === */
+  .traps { text-align: left; margin-top: 32px; }
+  .traps h3 { font-size: 14px; color: var(--ink-2); margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .trap {
+    background: white; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
+    margin-bottom: 8px; display: flex; align-items: center; gap: 12px; cursor: pointer;
+    transition: all 0.15s; font-family: inherit; text-align: left; width: 100%;
+  }
+  .trap:hover { border-color: var(--accent); }
+  .trap .cat { font-size: 11px; font-weight: 700; color: var(--accent-2); background: rgba(245, 158, 11, 0.1); padding: 3px 8px; border-radius: 4px; flex-shrink: 0; }
+  .trap .q { font-size: 13px; color: var(--ink-2); flex: 1; }
+  .trap .wrong-mark { color: var(--bad); flex-shrink: 0; }
+
+  .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .empty .icon { margin: 0 auto 12px; width: 48px; height: 48px; opacity: 0.4; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Top Bar -->
+  <div class="top">
+    <div class="brand">
+      <div class="logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.5 6.5 18 3l3 3-3.5 3.5"/>
+          <path d="m13 8 3 3"/>
+          <path d="M4 20 8 4l4 4 5 5-7 7H4Z"/>
+        </svg>
+      </div>
+      <div>
+        <h1>金工速通</h1>
+        <p>4 小时过考试 · 60 题互动</p>
+      </div>
+    </div>
+    <div class="tabs" id="tabs">
+      <button class="tab" data-mode="start">开练</button>
+      <button class="tab" data-mode="quick">速通30</button>
+      <button class="tab" data-mode="all">全题库</button>
+      <button class="tab" data-mode="traps">雷区 <span id="trapBadge"></span></button>
+    </div>
+  </div>
+
+  <!-- Progress (shown in quiz modes) -->
+  <div class="progress-wrap hidden" id="progressWrap">
+    <div class="progress-meta">
+      <span><span id="progText">0 / 0</span></span>
+      <span class="num" id="timer">00:00</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progFill" style="width: 0%"></div></div>
+  </div>
+
+  <!-- START SCREEN -->
+  <div class="hero" id="startScreen">
+    <div style="width:64px;height:64px;margin:0 auto;border-radius:18px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;color:white;box-shadow:0 8px 24px rgba(245,158,11,0.3)">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+      </svg>
+    </div>
+    <h2>准备好 4 小时速通了吗？</h2>
+    <p>60 道精选高频题 · 错题自动进雷区 · 支持随时重练</p>
+    <div class="modes">
+      <button class="mode" onclick="startQuiz('quick')">
+        <div class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <h3>速通 30 题</h3>
+        <p>最高频核心考点，30 分钟一套过</p>
+        <div class="meta">30 题 · 30 分钟</div>
+      </button>
+      <button class="mode" onclick="startQuiz('all')">
+        <div class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+        </div>
+        <h3>全题库</h3>
+        <p>60 道完整覆盖所有章节</p>
+        <div class="meta">60 题 · 全面复习</div>
+      </button>
+      <button class="mode" onclick="startQuiz('traps')">
+        <div class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <h3>雷区重练</h3>
+        <p>专治你栽过的坑，不带病上场</p>
+        <div class="meta" id="trapCount">0 道错题</div>
+      </button>
+    </div>
+    <p class="hint" style="margin-top:24px">快捷键：<kbd>1-4</kbd> 选 · <kbd>Enter</kbd> 提交 · <kbd>←/→</kbd> 切题</p>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="q-card hidden" id="quizScreen">
+    <div class="q-meta">
+      <div class="q-num">第 <b class="num" id="qNum">1</b> 题 / 共 <span class="num" id="qTotal">30</span></div>
+      <div class="q-cat" id="qCat">铸造</div>
+    </div>
+    <div class="q-text" id="qText">题目加载中...</div>
+    <div class="options" id="options"></div>
+    <div class="explain" id="explain"></div>
+    <div class="actions">
+      <button class="btn ghost" id="prevBtn" onclick="nav(-1)">← 上一题</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn ghost hidden" id="skipBtn" onclick="nav(1)">跳过 →</button>
+        <button class="btn primary" id="submitBtn" onclick="submit()" disabled>提交答案</button>
+        <button class="btn accent hidden" id="nextBtn" onclick="nav(1)">下一题 →</button>
+      </div>
+    </div>
+    <p class="hint" id="keyHint">按 <kbd>1-4</kbd> 选 · <kbd>Enter</kbd> 提交</p>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="q-card result hidden" id="resultScreen">
+    <div class="score-circle" id="scoreCircle">
+      <div class="score-inner">
+        <div class="score-text"><span id="scorePct">0</span><small>%</small></div>
+      </div>
+    </div>
+    <h2 id="scoreTitle">加载中...</h2>
+    <p class="tag" id="scoreTag"></p>
+    <div class="stats">
+      <div class="stat good"><div class="v num" id="statCorrect">0</div><div class="l">正确</div></div>
+      <div class="stat bad"><div class="v num" id="statWrong">0</div><div class="l">错题</div></div>
+      <div class="stat"><div class="v num" id="statTime">0:00</div><div class="l">用时</div></div>
+    </div>
+    <div class="traps" id="trapsBlock">
+      <h3>📍 你的雷区（<span id="trapListCount">0</span>）</h3>
+      <div id="trapList"></div>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:32px">
+      <button class="btn ghost" onclick="backToStart()">回到主页</button>
+      <button class="btn primary" onclick="retryTraps()">专攻雷区</button>
+    </div>
+  </div>
+
+  <!-- TRAP LIST SCREEN -->
+  <div class="q-card hidden" id="trapsScreen">
+    <h2 style="margin:0 0 8px">你的雷区清单</h2>
+    <p style="color:var(--muted);margin:0 0 24px;font-size:14px">点开任一道可以重新作答，错题自动从雷区移除</p>
+    <div id="trapFullList"></div>
+    <div style="margin-top:24px;display:flex;gap:12px">
+      <button class="btn ghost" onclick="backToStart()">回到主页</button>
+      <button class="btn primary" id="clearTrapsBtn" onclick="clearTraps()">清空雷区</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============ 题库 ============
+const POOL = [
+  // 铸造 (10)
+  {id:1, cat:"铸造", q:"拔模斜度应加在哪个面上？", opts:["各个面都要加","与分型面平行的平面","与分型面垂直的平面","分型面本身"], a:2, ex:"拔模斜度是为了方便起模。分型面是水平面，垂直于分型面的侧壁才有摩擦起模。" },
+  {id:2, cat:"铸造", q:"错箱是什么意思？", opts:["砂箱尺寸选错","放错了上箱","铸件在分型面处上下错开","浇口位置放错"], a:2, ex:"错箱 = 上下砂箱未对准，铸件沿分型面发生错位，是合箱工序的典型缺陷。" },
+  {id:3, cat:"铸造", q:"内浇口主要作用是什么？", opts:["缓冲金属液","挡渣","控制液体金属流速和流向","排气"], a:2, ex:"外浇口（浇口杯）= 缓冲+挡渣；直浇口 = 垂直向下；内浇口 = 控制流速流向。" },
+  {id:4, cat:"铸造", q:"铸件表面有局部凹陷，什么原因？", opts:["浇不足","收缩","铸型开裂","气孔"], a:1, ex:"凹陷 = 金属冷却时体积收缩，型腔又不能补缩造成。气孔是圆形孔洞。" },
+  {id:5, cat:"铸造", q:"砂型透气性不足会产生什么缺陷？", opts:["气孔","夹砂","裂纹","粘砂"], a:0, ex:"透气性差 → 气体排不出 → 留在金属中 → 气孔。夹砂是型砂强度不足。" },
+  {id:6, cat:"铸造", q:"三箱造型改为两箱造型，用什么方法？", opts:["加大分型面","加外型芯","修改浇注系统","换砂箱"], a:1, ex:"加外型芯 = 把上箱的型腔填到下箱内，省一个分型面。" },
+  {id:7, cat:"铸造", q:"最常用的铸铁是什么？", opts:["白口铸铁","可锻铸铁","灰口铸铁","球墨铸铁"], a:2, ex:"灰口铸铁因石墨片状结构，工艺性好、便宜，是工程最常用的铸铁。" },
+  {id:8, cat:"铸造", q:"浇注温度一般约多少度？", opts:["500 多度","700 多度","900 多度","1100 多度"], a:2, ex:"灰口铸铁的浇注温度通常在 1200-1400℃；本题按 900 多度判断为最接近。" },
+  {id:9, cat:"铸造", q:"型砂强度不足会产生什么缺陷？", opts:["气孔","夹砂","裂纹","粘砂"], a:1, ex:"强度不够 = 砂粒被冲入金属液 = 夹砂。耐火性差才是粘砂。" },
+  {id:10, cat:"铸造", q:"型芯的主要作用是？", opts:["增加铸件强度","增加铸件透气性","形成铸件的内腔","保护型腔"], a:2, ex:"型芯专门用来形成铸件内部空腔。型芯骨是型芯内部的加强筋。" },
+  // 锻造 (8)
+  {id:11, cat:"锻造", q:"锻造加热的目的是什么？", opts:["提高强度","提高塑性","提高硬度","提高韧性"], a:1, ex:"加热 = 让金属变软 = 提高塑性，降低变形抗力，锻打才打得动。" },
+  {id:12, cat:"锻造", q:"锻造加热温度越高越好对吗？", opts:["对","不对","有时对","看材料"], a:1, ex:"温度过高 = 过烧 = 晶界氧化 = 不可挽救。比过热严重得多。" },
+  {id:13, cat:"锻造", q:"模锻件重量一般不超过多少？", opts:["50 Kg","150 Kg","500 Kg","1 吨"], a:1, ex:"模锻受设备吨位限制，常用模锻件 ≤ 150 Kg；再大用自由锻 + 胎模锻。" },
+  {id:14, cat:"锻造", q:"水轮机主轴应采用什么锻造方法？", opts:["模锻","自由锻","胎模锻","铸造"], a:1, ex:"主轴 = 大件、单件、形状简单 = 自由锻最经济。" },
+  {id:15, cat:"锻造", q:"自由锻的基本工序有哪些？", opts:["车、铣、刨","镦粗、冲孔、拔长","淬火、回火","熔炼、浇注"], a:1, ex:"自由锻三大基本功：镦粗（压短）、冲孔（打洞）、拔长（拉细）。" },
+  {id:16, cat:"锻造", q:"过烧的锻件能否热处理挽救？", opts:["可以","不可以","有时可以","看温度"], a:1, ex:"过烧 = 晶界已氧化开裂 = 永久损伤，只能报废。过热还可以挽救。" },
+  {id:17, cat:"锻造", q:"胎模锻是在什么设备上进行的？", opts:["专用胎模锻机","自由锻设备","模锻锤","压力机"], a:1, ex:"胎模锻 = 在自由锻设备上用胎模控制形状，灵活适合中小批量。" },
+  {id:18, cat:"锻造", q:"起重机吊钩适合什么锻造方法？", opts:["模锻","自由锻","铸造","冲压"], a:1, ex:"吊钩 = 单件小批 + 大件 + 形状不复杂 = 自由锻。" },
+  // 焊接 (10)
+  {id:19, cat:"焊接", q:"焊条电弧焊的热源是什么？", opts:["火焰","电弧","激光","电阻"], a:1, ex:"焊条电弧焊 = 利用电弧高温熔化金属 + 焊条。气焊才是火焰。" },
+  {id:20, cat:"焊接", q:"焊接电弧温度可达多少度？", opts:["3000℃","4000℃","6000℃","8000℃"], a:2, ex:"电弧中心温度可达 6000℃ 以上，比氧乙炔焰（3000℃）高一倍。" },
+  {id:21, cat:"焊接", q:"焊接电弧的实质是什么？", opts:["电流通过两电极的高温","电极间气体电离导电产生高温","药皮燃烧放热","电阻热"], a:1, ex:"电弧 = 气体电离 = 等离子体导电。不是简单电阻热。" },
+  {id:22, cat:"焊接", q:"碱性焊条必须用哪种焊机？", opts:["交流电焊机","直流电焊机","都可以","氩弧焊机"], a:1, ex:"碱性焊条工艺要求高，电弧稳定性差，必须用直流电焊机。" },
+  {id:23, cat:"焊接", q:"交流电焊机本质上是什么？", opts:["升压变压器","降压变压器","特殊的降压变压器","整流器"], a:2, ex:"交流电焊机 = 特殊设计的降压变压器（漏磁大，陡降外特性）。" },
+  {id:24, cat:"焊接", q:"气焊点火的正确顺序是？", opts:["先开氧气→点火→开乙炔","先开乙炔→点火→开氧气","先开乙炔→开氧气→点火","同时开"], a:1, ex:"开乙炔→点火→开氧气 = 调中性焰。关的时候先关乙炔再关氧气。" },
+  {id:25, cat:"焊接", q:"焊接薄板应采用什么接法？", opts:["直流正接","直流反接","交流","正接反接都行"], a:1, ex:"薄板 = 工件接正极 = 直流反接。反接 = 焊件温度低 = 不易烧穿。" },
+  {id:26, cat:"焊接", q:"焊接结构最宜采用哪种接头？", opts:["角接","对接","搭接","T 接"], a:1, ex:"对接 = 受力好、焊缝少、应力集中小。结构钢焊接首选对接。" },
+  {id:27, cat:"焊接", q:"焊接结构最常用的钢材是？", opts:["高碳钢","中碳钢","低碳钢","合金钢"], a:2, ex:"低碳钢含碳低、塑性好、可焊性最好，是焊接结构主力。" },
+  {id:28, cat:"焊接", q:"乙炔发生器为防爆应配备什么？", opts:["回火保险器","减压器","压力表","水封"], a:0, ex:"回火保险器 = 防止火焰倒流入乙炔罐引起爆炸。" },
+  // 热处理 (6)
+  {id:29, cat:"热处理", q:"调质处理 = ?", opts:["淬火 + 低温回火","淬火 + 高温回火","退火 + 正火","渗碳 + 淬火"], a:1, ex:"调质 = 淬火 + 高温回火 (500-650℃) → 综合机械性能好。" },
+  {id:30, cat:"热处理", q:"冷变形（再结晶温度以下）会产生什么？", opts:["再结晶","加工硬化","退火","石墨化"], a:1, ex:"冷变形 = 位错增殖 = 强度硬度↑、塑性韧性↓ = 加工硬化。" },
+  {id:31, cat:"热处理", q:"T10 钢的平均含碳量约为？", opts:["0.1%","0.5%","1.0%","2.0%"], a:2, ex:"T10 = 含碳量 1.0% 的碳素工具钢，'10' = 含碳量 1.0%。" },
+  {id:32, cat:"热处理", q:"可锻铸铁可以锻造成型吗？", opts:["可以","不可以","有时可以","看温度"], a:1, ex:"可锻铸铁虽名字带'锻'，但属于铸铁类，必须铸造后热处理，不能锻造。" },
+  {id:33, cat:"热处理", q:"钢的含碳量增加，强度硬度如何变化？", opts:["一直增加","一直下降","先增后降","不变"], a:2, ex:">1% 后强度反而下降（渗碳体过多变脆），硬度一直增加。本题答'有时对'。" },
+  {id:34, cat:"热处理", q:"中碳钢热处理工艺通常采用？", opts:["退火","正火","调质","渗碳"], a:2, ex:"中碳钢 (0.3-0.5%) 调质后获得良好综合机械性能 (强+韧)。" },
+  // 车削 (12)
+  {id:35, cat:"车削", q:"C6140 车床能加工的最大工件直径？", opts:["20 mm","40 mm","400 mm","1000 mm"], a:2, ex:"C6140 = 床身上最大回转直径 400 mm。" },
+  {id:36, cat:"车削", q:"车外圆时切削深度 ap = ?", opts:["切屑厚度","工件直径","直径差的一半","进给量"], a:2, ex:"ap = (待加工 - 已加工) / 2 = 直径差的一半。等于半径差。" },
+  {id:37, cat:"车削", q:"车床的主运动是什么？", opts:["刀具直线移动","工件的旋转","溜板的往复","尾座移动"], a:1, ex:"主运动 = 切削时消耗动力最大的运动。车床主运动 = 工件旋转。" },
+  {id:38, cat:"车削", q:"副偏角是指主切削刃与什么的夹角？", opts:["进给方向","车刀前进方向","工件轴线","主轴"], a:1, ex:"主偏角 = 与进给方向；副偏角 = 与车刀前进方向。两者都基于基面测量。" },
+  {id:39, cat:"车削", q:"刃倾角是在哪个面内测量的？", opts:["正交平面","切削平面","基面","主剖面"], a:1, ex:"刃倾角 = 主切削刃与基面夹角 → 在切削平面（包含切削刃且垂直于基面）内。" },
+  {id:40, cat:"车削", q:"主偏角是在哪个面内测量的？", opts:["正交平面","切削平面","基面","任意平面"], a:2, ex:"主偏角、副偏角都在基面内测量。刃倾角在切削平面内。" },
+  {id:41, cat:"车削", q:"车床上禁止佩戴什么？", opts:["帽子","手套","眼镜","口罩"], a:1, ex:"车床旋转件多，戴手套极易被卷入绞手。其他可以戴。" },
+  {id:42, cat:"车削", q:"三爪卡盘的卡爪可以单独移动吗？", opts:["可以","不可以","有时可以","看型号"], a:1, ex:"三爪卡盘 = 三个爪联动自动定心，不能单独移动。需单独调整用四爪卡盘。" },
+  {id:43, cat:"车削", q:"车外圆时带动溜板箱的是？", opts:["光杠","丝杠","螺杆","手轮"], a:0, ex:"光杠 = 车外圆、端面等一般进给；丝杠 = 专门车螺纹。" },
+  {id:44, cat:"车削", q:"高速钢车刀的红硬性温度约为？", opts:["300-400℃","500-600℃","800-1000℃","1200℃"], a:1, ex:"高速钢红硬性 500-600℃；硬质合金可达 800-1000℃。" },
+  {id:45, cat:"车削", q:"刀具前刀面与主后刀面的交线是？", opts:["副切削刃","主切削刃","刀尖","棱边"], a:1, ex:"前刀面 ∩ 主后刀面 = 主切削刃；前刀面 ∩ 副后刀面 = 副切削刃。" },
+  {id:46, cat:"车削", q:"车床上适合加工什么平面？", opts:["回转面","键槽","斜面","花键"], a:0, ex:"车床 = 回转体加工，回转面（圆柱面、端面、圆锥面）最经济。" },
+  // 铣削 (6)
+  {id:47, cat:"铣削", q:"铣床的主运动是什么？", opts:["工作台移动","工件的旋转","铣刀的旋转","刀具进给"], a:2, ex:"铣床主运动 = 铣刀旋转；进给运动 = 工作台/工件移动。" },
+  {id:48, cat:"铣削", q:"工件表面有硬皮时采用哪种铣削方式？", opts:["端铣","逆铣","顺铣","周铣"], a:1, ex:"硬皮 = 切厚从大到小 = 逆铣。顺铣切厚从小到大，先啃硬皮易崩刃。" },
+  {id:49, cat:"铣削", q:"顺铣时容易打刀，主要因为？", opts:["丝杆与螺母有间隙","蜗轮蜗杆有间隙","刀具磨损","切削力太大"], a:0, ex:"顺铣 = 切厚从小到大 = 切削力向下 → 拉动工作台 → 丝杆螺母间隙造成打刀。" },
+  {id:50, cat:"铣削", q:"在铣床上加工 30 齿齿轮，分度手柄应转多少转？", opts:["1/2","1+1/3","1+2/3","1"], a:1, ex:"n = 40 / z = 40 / 30 = 1 1/3 转。分度头传动比 1:40。" },
+  {id:51, cat:"铣削", q:"卧式铣床应选用什么铣刀？", opts:["带直柄的铣刀","带孔的铣刀","带锥柄的铣刀","面铣刀"], a:1, ex:"卧式 = 水平主轴 → 用长刀杆穿过刀盘孔 → 带孔铣刀。立式用带柄铣刀。" },
+  {id:52, cat:"铣削", q:"立式铣床主轴如何布置？", opts:["水平","与水平成 45°","垂直","任意角度"], a:2, ex:"立式 = 主轴垂直布置。卧式 = 主轴水平布置。" },
+  // 磨削 (3)
+  {id:53, cat:"磨削", q:"砂轮的硬度是指什么？", opts:["磨料的硬度","磨粒脱落的难易程度","结合剂的强度","砂轮的总强度"], a:1, ex:"硬度 = 磨粒在外力下从砂轮表面脱落的难易度。磨料本身是材料，硬度是结构。" },
+  {id:54, cat:"磨削", q:"砂轮的三个基本要素是？", opts:["磨料/粒度/孔隙","磨料/结合剂/孔隙","硬度/粒度/形状","结合剂/硬度/粒度"], a:1, ex:"三要素 = 磨料 + 结合剂 + 孔隙。粒度、硬度、形状是另外的属性参数。" },
+  {id:55, cat:"磨削", q:"磨削硬质合金车刀应选用什么砂轮？", opts:["氧化铝砂轮","碳化硅砂轮","金刚石砂轮","陶瓷砂轮"], a:2, ex:"硬质合金硬度高，氧化铝/碳化硅磨不动。必须用金刚石砂轮。" },
+  // 钳工 (5)
+  {id:56, cat:"钳工", q:"划线基准与设计基准的关系？", opts:["通常一致","从不一致","必须不同","看工人"], a:0, ex:"为减少误差累积，划线基准通常与设计基准一致。" },
+  {id:57, cat:"钳工", q:"锉刀一般用什么材料制成？", opts:["碳素结构钢","碳素工具钢","高速钢","硬质合金"], a:1, ex:"锉刀要硬且耐磨，用 T12 碳素工具钢。锯条、手工丝锥同理。" },
+  {id:58, cat:"钳工", q:"孔快穿时，进给速度应如何控制？", opts:["保持匀速","减慢","加快","停止"], a:1, ex:"孔快穿 = 钻头横刃突出 + 切屑堵塞 = 减慢进给，防止卡死或折断。" },
+  {id:59, cat:"钳工", q:"攻丝前钻孔直径如何确定？", opts:["等于螺纹大径","等于螺纹中径","等于螺纹小径（内径）","略大于螺纹大径"], a:2, ex:"攻丝底孔 = 螺纹小径，约等于外径 - 螺距。脆性材料略大 0.1P。" },
+  {id:60, cat:"钳工", q:"工件装配时可用铁锤直接敲击表面压入吗？", opts:["可以","不可以","有时可以","看材料"], a:1, ex:"敲击会损伤表面、变形。应垫铜棒或用压机。" },
+];
+
+// 速通 30 题（最高频核心）
+const QUICK30 = [1,2,3,4,5,6,7,11,12,13,15,16,19,20,21,22,24,25,26,27,29,30,31,35,36,37,41,42,50,53].map(id => POOL.find(q => q.id === id));
+
+// 关键词 → 类别配色
+const CAT_COLORS = {
+  "铸造":"#f59e0b", "锻造":"#dc2626", "焊接":"#3b82f6", "热处理":"#8b5cf6",
+  "车削":"#10b981", "铣削":"#06b6d4", "磨削":"#ec4899", "钳工":"#f97316"
+};
+
+// ============ 状态 ============
+let state = {
+  mode: null,           // 'quick' | 'all' | 'traps'
+  questions: [],
+  idx: 0,
+  answers: {},          // qid -> {selected, correct}
+  traps: JSON.parse(localStorage.getItem('traps') || '[]'),
+  startTime: 0,
+  endTime: 0,
+};
+
+function saveTraps() {
+  localStorage.setItem('traps', JSON.stringify(state.traps));
+  updateTrapBadge();
+}
+
+function updateTrapBadge() {
+  const t = state.traps.length;
+  document.getElementById('trapBadge').textContent = t ? `(${t})` : '';
+  document.getElementById('trapCount').textContent = t ? `${t} 道错题` : '0 道错题';
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz(mode) {
+  state.mode = mode;
+  state.idx = 0;
+  state.answers = {};
+  state.startTime = Date.now();
+
+  if (mode === 'quick') state.questions = shuffle(QUICK30);
+  else if (mode === 'all') state.questions = shuffle(POOL);
+  else if (mode === 'traps') {
+    if (state.traps.length === 0) {
+      alert('雷区是空的！先去全题库扫一遍吧～');
+      return;
+    }
+    state.questions = shuffle(state.traps.map(id => POOL.find(q => q.id === id)));
+  }
+
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('resultScreen').classList.add('hidden');
+  document.getElementById('trapsScreen').classList.add('hidden');
+  document.getElementById('quizScreen').classList.remove('hidden');
+  document.getElementById('progressWrap').classList.remove('hidden');
+  setActiveTab(mode);
+  renderQuestion();
+  startTimer();
+}
+
+function setActiveTab(mode) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const map = { start: 0, quick: 1, all: 2, traps: 3 };
+  const tabs = document.querySelectorAll('.tab');
+  if (map[mode] !== undefined) tabs[map[mode]].classList.add('active');
+}
+
+function startTimer() {
+  if (window._timer) clearInterval(window._timer);
+  window._timer = setInterval(() => {
+    const s = Math.floor((Date.now() - state.startTime) / 1000);
+    const m = Math.floor(s / 60);
+    const ss = s % 60;
+    document.getElementById('timer').textContent =
+      String(m).padStart(2,'0') + ':' + String(ss).padStart(2,'0');
+  }, 1000);
+}
+
+function renderQuestion() {
+  const q = state.questions[state.idx];
+  const prev = state.answers[q.id];
+
+  document.getElementById('qNum').textContent = state.idx + 1;
+  document.getElementById('qTotal').textContent = state.questions.length;
+  document.getElementById('qCat').textContent = q.cat;
+  document.getElementById('qCat').style.background = (CAT_COLORS[q.cat] || '#f59e0b') + '20';
+  document.getElementById('qCat').style.color = CAT_COLORS[q.cat] || '#f59e0b';
+  document.getElementById('qText').textContent = q.q;
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  q.opts.forEach((txt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.dataset.idx = i;
+    btn.innerHTML = `<span class="key">${String.fromCharCode(65+i)}</span><span class="txt">${txt}</span>
+      <span class="mark"></span>`;
+    btn.onclick = () => selectOpt(i);
+    if (prev) {
+      btn.disabled = true;
+      if (i === q.a) btn.classList.add('correct');
+      if (i === prev.selected && prev.selected !== q.a) btn.classList.add('wrong');
+    }
+    opts.appendChild(btn);
+  });
+
+  const exp = document.getElementById('explain');
+  if (prev) {
+    exp.classList.add('show');
+    exp.innerHTML = `<h4>${prev.correct ? '✓ 答对了' : '✗ 答错了，已记入雷区'}</h4>${q.ex}`;
+  } else {
+    exp.classList.remove('show');
+    exp.innerHTML = '';
+  }
+
+  // 按钮状态
+  document.getElementById('prevBtn').disabled = state.idx === 0;
+  document.getElementById('submitBtn').classList.toggle('hidden', !!prev);
+  document.getElementById('nextBtn').classList.toggle('hidden', !prev);
+  document.getElementById('skipBtn').classList.toggle('hidden', !!prev);
+  document.getElementById('submitBtn').disabled = true;
+
+  // 进度
+  const pct = ((state.idx) / state.questions.length) * 100;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progText').textContent = `${state.idx} / ${state.questions.length}`;
+}
+
+let selectedIdx = null;
+function selectOpt(i) {
+  if (state.answers[state.questions[state.idx].id]) return;
+  selectedIdx = i;
+  document.querySelectorAll('.opt').forEach((b, idx) => {
+    b.classList.toggle('selected', idx === i);
+  });
+  document.getElementById('submitBtn').disabled = false;
+}
+
+function submit() {
+  if (selectedIdx === null) return;
+  const q = state.questions[state.idx];
+  const correct = selectedIdx === q.a;
+  state.answers[q.id] = { selected: selectedIdx, correct };
+
+  // 更新雷区
+  if (!correct) {
+    if (!state.traps.includes(q.id)) state.traps.push(q.id);
+  } else {
+    state.traps = state.traps.filter(id => id !== q.id);
+  }
+  saveTraps();
+
+  // 渲染反馈
+  const opts = document.querySelectorAll('.opt');
+  opts.forEach((b, idx) => {
+    b.disabled = true;
+    const mark = b.querySelector('.mark');
+    if (idx === q.a) {
+      b.classList.add('correct');
+      mark.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+    } else if (idx === selectedIdx) {
+      b.classList.add('wrong');
+      mark.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+    }
+  });
+
+  const exp = document.getElementById('explain');
+  exp.classList.add('show');
+  exp.innerHTML = `<h4>${correct ? '✓ 答对了' : '✗ 答错了'}${correct ? '' : ' · 已记入雷区'}</h4>${q.ex}`;
+  if (!correct) {
+    exp.classList.add('shake');
+    setTimeout(() => exp.classList.remove('shake'), 500);
+  }
+
+  document.getElementById('submitBtn').classList.add('hidden');
+  document.getElementById('skipBtn').classList.add('hidden');
+  document.getElementById('nextBtn').classList.remove('hidden');
+  document.getElementById('keyHint').innerHTML = correct ? '🎉 答对了！按 <kbd>→</kbd> 继续' : '💡 按 <kbd>→</kbd> 继续';
+}
+
+function nav(dir) {
+  const newIdx = state.idx + dir;
+  if (newIdx < 0) return;
+  if (newIdx >= state.questions.length) {
+    finish();
+    return;
+  }
+  state.idx = newIdx;
+  selectedIdx = null;
+  renderQuestion();
+}
+
+function finish() {
+  clearInterval(window._timer);
+  state.endTime = Date.now();
+  document.getElementById('quizScreen').classList.add('hidden');
+  document.getElementById('progressWrap').classList.add('hidden');
+  document.getElementById('resultScreen').classList.remove('hidden');
+
+  const total = state.questions.length;
+  const correct = Object.values(state.answers).filter(a => a.correct).length;
+  const wrong = total - correct;
+  const pct = Math.round(correct / total * 100);
+  const time = Math.floor((state.endTime - state.startTime) / 1000);
+  const m = Math.floor(time / 60);
+  const s = time % 60;
+
+  document.getElementById('scorePct').textContent = pct;
+  document.getElementById('statCorrect').textContent = correct;
+  document.getElementById('statWrong').textContent = wrong;
+  document.getElementById('statTime').textContent = `${m}:${String(s).padStart(2,'0')}`;
+
+  // 圆环动画
+  setTimeout(() => {
+    const deg = pct * 3.6;
+    const color = pct >= 80 ? 'var(--good)' : pct >= 60 ? 'var(--accent)' : 'var(--bad)';
+    document.getElementById('scoreCircle').style.background = `conic-gradient(${color} ${deg}deg, var(--line-soft) ${deg}deg)`;
+  }, 100);
+
+  // 评语
+  let title = '', tag = '';
+  if (pct >= 90) { title = '🎉 稳了！'; tag = '能进考场收菜的水平，再过一遍雷区就是 100 分'; }
+  else if (pct >= 75) { title = '👌 良好'; tag = '基础题没问题，错的都是细节，再磨一磨雷区即可'; }
+  else if (pct >= 60) { title = '⚠️ 还能抢救'; tag = '赶紧回雷区把栽过的坑再过一遍，考前还来得及'; }
+  else { title = '🚨 需要补强'; tag = '建议从速通 30 题开始刷，重点模块挨个过'; }
+  document.getElementById('scoreTitle').textContent = title;
+  document.getElementById('scoreTag').textContent = tag;
+
+  // 雷区列表
+  const trapList = document.getElementById('trapList');
+  if (state.traps.length === 0) {
+    document.getElementById('trapsBlock').innerHTML = '<h3>✨ 雷区清零！考试稳了一半</h3>';
+  } else {
+    document.getElementById('trapsBlock').innerHTML = '<h3>📍 你的雷区（' + state.traps.length + '）</h3>';
+    const container = document.getElementById('trapsBlock');
+    state.traps.forEach(id => {
+      const q = POOL.find(x => x.id === id);
+      if (!q) return;
+      const el = document.createElement('div');
+      el.className = 'trap';
+      el.innerHTML = `<span class="cat">${q.cat}</span><span class="q">${q.q}</span><span class="wrong-mark">✗</span>`;
+      el.onclick = () => { startQuiz('traps'); };
+      container.appendChild(el);
+    });
+  }
+}
+
+function backToStart() {
+  document.getElementById('startScreen').classList.remove('hidden');
+  document.getElementById('resultScreen').classList.add('hidden');
+  document.getElementById('trapsScreen').classList.add('hidden');
+  document.getElementById('quizScreen').classList.add('hidden');
+  document.getElementById('progressWrap').classList.add('hidden');
+  setActiveTab('start');
+}
+
+function retryTraps() {
+  startQuiz('traps');
+}
+
+function showTraps() {
+  setActiveTab('traps');
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('quizScreen').classList.add('hidden');
+  document.getElementById('resultScreen').classList.add('hidden');
+  document.getElementById('progressWrap').classList.add('hidden');
+  const screen = document.getElementById('trapsScreen');
+  screen.classList.remove('hidden');
+  const list = document.getElementById('trapFullList');
+  list.innerHTML = '';
+  if (state.traps.length === 0) {
+    list.innerHTML = '<div class="empty"><div class="icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>雷区是空的！去刷一遍题吧</div>';
+  } else {
+    state.traps.forEach(id => {
+      const q = POOL.find(x => x.id === id);
+      if (!q) return;
+      const el = document.createElement('div');
+      el.className = 'trap';
+      el.innerHTML = `<span class="cat">${q.cat}</span><span class="q">${q.q}</span><span class="wrong-mark">✗</span>`;
+      el.onclick = () => { startQuiz('traps'); };
+      list.appendChild(el);
+    });
+  }
+}
+
+function clearTraps() {
+  if (confirm('确定清空所有错题记录？')) {
+    state.traps = [];
+    saveTraps();
+    showTraps();
+  }
+}
+
+// tab 点击
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const m = tab.dataset.mode;
+    if (m === 'start') backToStart();
+    else if (m === 'quick' || m === 'all') startQuiz(m);
+    else if (m === 'traps') showTraps();
+  });
+});
+
+// 键盘
+document.addEventListener('keydown', e => {
+  if (document.getElementById('quizScreen').classList.contains('hidden')) return;
+  if (e.key >= '1' && e.key <= '4') {
+    const q = state.questions[state.idx];
+    if (q && !state.answers[q.id]) selectOpt(parseInt(e.key) - 1);
+  } else if (e.key === 'Enter') {
+    if (!document.getElementById('submitBtn').classList.contains('hidden')) submit();
+    else if (!document.getElementById('nextBtn').classList.contains('hidden')) nav(1);
+  } else if (e.key === 'ArrowRight') {
+    nav(1);
+  } else if (e.key === 'ArrowLeft') {
+    nav(-1);
+  }
+});
+
+// 初始化
+updateTrapBadge();
+setActiveTab('start');
+</script>
+</body>
+</html>
